@@ -1,0 +1,10 @@
+# DeepSeek API配置
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_API_BASE=https://api.deepseek.com
+
+# Flask配置
+FLASK_SECRET_KEY=your-secret-key-here
+FLASK_DEBUG=True
+
+# 其他配置
+# 可以根据需要添加其他环境变量 

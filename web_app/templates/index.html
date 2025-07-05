@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书热门博客分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff2442;
+            --secondary-color: #ff6b81;
+            --accent-color: #ff8fa3;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 2rem auto;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+            padding: 1.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 36, 66, 0.3);
+        }
+        
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 36, 66, 0.25);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+        }
+        
+        .result-section {
+            display: none;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+        
+        .analysis-text {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+        
+        .alert {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>
+                小红书热门博客分析系统
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-clock me-1"></i>
+                    <span id="current-time"></span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-container">
+            <!-- 标题 -->
+            <div class="text-center mb-4">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-search me-3"></i>
+                    小红书热门博客分析
+                </h1>
+                <p class="lead text-muted">智能爬取、AI分析、可视化展示</p>
+            </div>
+
+            <!-- 操作面板 -->
+            <div class="row">
+                <!-- 爬取数据 -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-spider me-2"></i>
+                                数据爬取
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="crawlForm">
+                                <div class="mb-3">
+                                    <label for="topic" class="form-label">搜索主题</label>
+                                    <input type="text" class="form-control" id="topic" 
+                                           placeholder="例如：美食、旅行、穿搭..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="limit" class="form-label">获取数量</label>
+                                    <select class="form-control" id="limit">
+                                        <option value="10">10条</option>
+                                        <option value="20" selected>20条</option>
+                                        <option value="50">50条</option>
+                                        <option value="100">100条</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-download me-2"></i>
+                                    开始爬取
+                                </button>
+                            </form>
+                            
+                            <div id="crawlLoading" class="loading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">正在爬取数据，请稍候...</p>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据分析 -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-brain me-2"></i>
+                                AI分析
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="dataFile" class="form-label">选择数据文件</label>
+                                <select class="form-control" id="dataFile">
+                                    <option value="">请先爬取数据</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" id="analyzeBtn" disabled>
+                                <i class="fas fa-chart-bar me-2"></i>
+                                开始分析
+                            </button>
+                            
+                            <div id="analyzeLoading" class="loading">
+                                <div class="spinner-border" role="status"></div>
+                                <p class="mt-2">AI正在分析数据，请稍候...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息提示 -->
+            <div id="messageContainer"></div>
+
+            <!-- 分析结果 -->
+            <div id="resultSection" class="result-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            分析结果
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 核心指标 -->
+                        <div class="row mb-4" id="metricsRow">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="totalNotes">-</div>
+                                    <div class="metric-label">总笔记数</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="avgLikes">-</div>
+                                    <div class="metric-label">平均点赞</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="topAuthors">-</div>
+                                    <div class="metric-label">热门作者</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="popularTopics">-</div>
+                                    <div class="metric-label">热门话题</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 图表区域 -->
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">热门作者分布</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="authorsChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">热门关键词</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="keywordsChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI分析结果 -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">AI深度分析</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="aiAnalysis" class="analysis-text"></div>
+                            </div>
+                        </div>
+
+                        <!-- 建议和推荐 -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">策略建议</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="recommendations"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        // 全局变量
+        let currentAnalysis = null;
+        let authorsChart = null;
+        let keywordsChart = null;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            loadFileList();
+            
+            // 绑定事件
+            document.getElementById('crawlForm').addEventListener('submit', handleCrawl);
+            document.getElementById('analyzeBtn').addEventListener('click', handleAnalyze);
+            document.getElementById('dataFile').addEventListener('change', updateAnalyzeButton);
+        });
+
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleString('zh-CN');
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            container.appendChild(alert);
+            
+            // 自动消失
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // 加载文件列表
+        async function loadFileList() {
+            try {
+                const response = await fetch('/api/files');
+                const data = await response.json();
+                
+                const select = document.getElementById('dataFile');
+                select.innerHTML = '<option value="">请选择数据文件</option>';
+                
+                data.files.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.path;
+                    option.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('加载文件列表失败:', error);
+            }
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 处理爬取请求
+        async function handleCrawl(event) {
+            event.preventDefault();
+            
+            const topic = document.getElementById('topic').value.trim();
+            const limit = document.getElementById('limit').value;
+            
+            if (!topic) {
+                showMessage('请输入搜索主题', 'danger');
+                return;
+            }
+            
+            // 显示加载状态
+            document.getElementById('crawlLoading').style.display = 'block';
+            document.querySelector('#crawlForm button').disabled = true;
+            
+            try {
+                const response = await fetch('/api/crawl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic, limit })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    await loadFileList();
+                } else {
+                    showMessage(result.error, 'danger');
+                }
+            } catch (error) {
+                showMessage('爬取失败: ' + error.message, 'danger');
+            } finally {
+                document.getElementById('crawlLoading').style.display = 'none';
+                document.querySelector('#crawlForm button').disabled = false;
+            }
+        }
+
+        // 更新分析按钮状态
+        function updateAnalyzeButton() {
+            const fileSelect = document.getElementById('dataFile');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = !fileSelect.value;
+        }
+
+        // 处理分析请求
+        async function handleAnalyze() {
+            const csvFile = document.getElementById('dataFile').value;
+            
+            if (!csvFile) {
+                showMessage('请选择数据文件', 'danger');
+                return;
+            }
+            
+            // 显示加载状态
+            document.getElementById('analyzeLoading').style.display = 'block';
+            document.getElementById('analyzeBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ csv_file: csvFile })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    currentAnalysis = result.analysis;
+                    displayResults(result.analysis);
+                } else {
+                    showMessage(result.error, 'danger');
+                }
+            } catch (error) {
+                showMessage('分析失败: ' + error.message, 'danger');
+            } finally {
+                document.getElementById('analyzeLoading').style.display = 'none';
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        // 显示分析结果
+        function displayResults(analysis) {
+            document.getElementById('resultSection').style.display = 'block';
+            
+            // 更新核心指标
+            const trends = analysis.trends;
+            document.getElementById('totalNotes').textContent = trends.total_notes || '-';
+            
+            if (trends.engagement_analysis && trends.engagement_analysis.avg_likes) {
+                document.getElementById('avgLikes').textContent = 
+                    Math.round(trends.engagement_analysis.avg_likes);
+            }
+            
+            document.getElementById('topAuthors').textContent = 
+                trends.top_authors ? trends.top_authors.length : '-';
+            
+            document.getElementById('popularTopics').textContent = 
+                trends.popular_topics ? trends.popular_topics.length : '-';
+            
+            // 创建图表
+            createAuthorsChart(trends.top_authors || []);
+            createKeywordsChart(trends.popular_topics || []);
+            
+            // 显示AI分析
+            const aiAnalysis = analysis.ai_analysis;
+            if (aiAnalysis && aiAnalysis.ai_analysis) {
+                document.getElementById('aiAnalysis').textContent = aiAnalysis.ai_analysis;
+            }
+            
+            // 显示建议
+            displayRecommendations(trends.recommendations || []);
+        }
+
+        // 创建作者分布图表
+        function createAuthorsChart(authors) {
+            const ctx = document.getElementById('authorsChart').getContext('2d');
+            
+            if (authorsChart) {
+                authorsChart.destroy();
+            }
+            
+            const labels = authors.map(a => a.author);
+            const data = authors.map(a => a.count);
+            
+            authorsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建关键词图表
+        function createKeywordsChart(keywords) {
+            const ctx = document.getElementById('keywordsChart').getContext('2d');
+            
+            if (keywordsChart) {
+                keywordsChart.destroy();
+            }
+            
+            const labels = keywords.slice(0, 10).map(k => k.keyword);
+            const data = keywords.slice(0, 10).map(k => k.frequency);
+            
+            keywordsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '出现频率',
+                        data: data,
+                        backgroundColor: 'rgba(255, 36, 66, 0.8)',
+                        borderColor: 'rgba(255, 36, 66, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 显示建议
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
+            
+            if (recommendations.length === 0) {
+                container.innerHTML = '<p class="text-muted">暂无建议</p>';
+                return;
+            }
+            
+            const list = document.createElement('ul');
+            list.className = 'list-group list-group-flush';
+            
+            recommendations.forEach(rec => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item';
+                item.innerHTML = `<i class="fas fa-lightbulb text-warning me-2"></i>${rec}`;
+                list.appendChild(item);
+            });
+            
+            container.appendChild(list);
+        }
+    </script>
+</body>
+</html> 
