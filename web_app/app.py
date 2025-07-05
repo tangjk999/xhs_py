@@ -23,6 +23,9 @@ app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
 # API密钥文件路径
 API_KEY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'api_key.json')
 
+# Cookies文件路径
+COOKIES_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'xhs_cookies.json')
+
 # 全局变量
 crawler = None
 analyzer = None
@@ -48,6 +51,29 @@ def load_api_key():
         return ''
     except Exception as e:
         print(f"加载API密钥失败: {e}")
+        return ''
+
+def save_cookies(cookies):
+    """保存cookies到本地文件"""
+    try:
+        data = {'xhs_cookies': cookies}
+        with open(COOKIES_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"保存cookies失败: {e}")
+        return False
+
+def load_cookies():
+    """从本地文件加载cookies"""
+    try:
+        if os.path.exists(COOKIES_FILE):
+            with open(COOKIES_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('xhs_cookies', '')
+        return ''
+    except Exception as e:
+        print(f"加载cookies失败: {e}")
         return ''
 
 def get_crawler():
@@ -100,6 +126,39 @@ def load_api_key_route():
     except Exception as e:
         return jsonify({'error': f'加载API密钥时出错: {str(e)}'}), 500
 
+@app.route('/api/save-cookies', methods=['POST'])
+def save_cookies_route():
+    """保存cookies"""
+    try:
+        data = request.get_json()
+        cookies = data.get('cookies', '').strip()
+        
+        if not cookies:
+            return jsonify({'error': 'cookies不能为空'}), 400
+        
+        if save_cookies(cookies):
+            return jsonify({
+                'success': True,
+                'message': 'cookies保存成功'
+            })
+        else:
+            return jsonify({'error': 'cookies保存失败'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': f'保存cookies时出错: {str(e)}'}), 500
+
+@app.route('/api/load-cookies', methods=['GET'])
+def load_cookies_route():
+    """加载cookies"""
+    try:
+        cookies = load_cookies()
+        return jsonify({
+            'success': True,
+            'cookies': cookies
+        })
+    except Exception as e:
+        return jsonify({'error': f'加载cookies时出错: {str(e)}'}), 500
+
 @app.route('/api/crawl', methods=['POST'])
 def crawl_data():
     """爬取数据API"""
@@ -111,8 +170,11 @@ def crawl_data():
         if not topic:
             return jsonify({'error': '请提供搜索主题'}), 400
         
+        # 加载保存的cookies
+        cookies = load_cookies()
+        
         crawler = get_crawler()
-        filepath = crawler.crawl_hot_notes(topic, limit)
+        filepath = crawler.crawl_hot_notes(topic, limit, cookies)
         
         if filepath:
             return jsonify({
