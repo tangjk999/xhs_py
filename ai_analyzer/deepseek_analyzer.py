@@ -19,6 +19,16 @@ class DeepSeekAnalyzer:
             self.use_mock = True
         else:
             self.use_mock = False
+    
+    def update_api_key(self, api_key: str):
+        """更新API密钥"""
+        self.api_key = api_key
+        if api_key:
+            self.use_mock = False
+            print("API密钥已更新，将使用真实API")
+        else:
+            self.use_mock = True
+            print("API密钥已清空，将使用模拟分析")
             
     def load_data(self, csv_file_path: str) -> pd.DataFrame:
         """加载CSV数据文件"""

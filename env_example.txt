@@ -1,5 +1,5 @@
 # DeepSeek API配置
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_API_KEY=sk-ccb9b99e08ed4c0cb309a6222ae9a45c
 DEEPSEEK_API_BASE=https://api.deepseek.com
 
 # Flask配置

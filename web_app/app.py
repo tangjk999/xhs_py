@@ -20,9 +20,35 @@ CORS(app)
 config = Config()
 app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
 
+# API密钥文件路径
+API_KEY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'api_key.json')
+
 # 全局变量
 crawler = None
 analyzer = None
+
+def save_api_key(api_key):
+    """保存API密钥到本地文件"""
+    try:
+        data = {'deepseek_api_key': api_key}
+        with open(API_KEY_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"保存API密钥失败: {e}")
+        return False
+
+def load_api_key():
+    """从本地文件加载API密钥"""
+    try:
+        if os.path.exists(API_KEY_FILE):
+            with open(API_KEY_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('deepseek_api_key', '')
+        return ''
+    except Exception as e:
+        print(f"加载API密钥失败: {e}")
+        return ''
 
 def get_crawler():
     global crawler
@@ -40,6 +66,39 @@ def get_analyzer():
 def index():
     """主页"""
     return render_template('index.html')
+
+@app.route('/api/save-api-key', methods=['POST'])
+def save_api_key_route():
+    """保存API密钥"""
+    try:
+        data = request.get_json()
+        api_key = data.get('api_key', '').strip()
+        
+        if not api_key:
+            return jsonify({'error': 'API密钥不能为空'}), 400
+        
+        if save_api_key(api_key):
+            return jsonify({
+                'success': True,
+                'message': 'API密钥保存成功'
+            })
+        else:
+            return jsonify({'error': 'API密钥保存失败'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': f'保存API密钥时出错: {str(e)}'}), 500
+
+@app.route('/api/load-api-key', methods=['GET'])
+def load_api_key_route():
+    """加载API密钥"""
+    try:
+        api_key = load_api_key()
+        return jsonify({
+            'success': True,
+            'api_key': api_key
+        })
+    except Exception as e:
+        return jsonify({'error': f'加载API密钥时出错: {str(e)}'}), 500
 
 @app.route('/api/crawl', methods=['POST'])
 def crawl_data():
@@ -73,11 +132,16 @@ def analyze_data():
     try:
         data = request.get_json()
         csv_file = data.get('csv_file', '')
+        api_key = data.get('api_key', '')  # 从前端获取API密钥
         
         if not csv_file or not os.path.exists(csv_file):
             return jsonify({'error': 'CSV文件不存在'}), 400
         
         analyzer = get_analyzer()
+        
+        # 如果提供了API密钥，更新分析器
+        if api_key:
+            analyzer.update_api_key(api_key)
         
         # 加载数据
         df = analyzer.load_data(csv_file)
@@ -198,6 +262,6 @@ if __name__ == '__main__':
     
     app.run(
         host='0.0.0.0',
-        port=5000,
+        port=5001,
         debug=config.FLASK_DEBUG
     ) 
