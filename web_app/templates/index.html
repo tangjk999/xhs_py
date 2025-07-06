@@ -444,6 +444,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- 隐藏的Cookie字段 -->
+                                <input type="hidden" id="cookies" name="cookies">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-play me-2"></i>开始爬取
                                 </button>
@@ -801,10 +803,6 @@
             
             // Cookie转换
             document.getElementById('convertCookies').addEventListener('click', convertCookies);
-            document.getElementById('useConvertedCookies').addEventListener('click', useConvertedCookies);
-            
-            // 清空Cookies
-            document.getElementById('clearCookies').addEventListener('click', clearCookies);
             
             // 检查Cookie状态
             document.getElementById('checkCookieStatus').addEventListener('click', checkCookieStatus);
@@ -814,18 +812,30 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
-            document.getElementById('tableSearch').addEventListener('input', function(e) {
-                tableState.search = e.target.value.trim();
-                tableState.page = 1;
-                renderCrawlTable();
-            });
-            document.getElementById('tablePageSize').addEventListener('change', function(e) {
-                tableState.pageSize = parseInt(e.target.value);
-                tableState.page = 1;
-                renderCrawlTable();
-            });
+            // 表格搜索和分页功能（如果存在对应元素）
+            const tableSearch = document.getElementById('tableSearch');
+            if (tableSearch) {
+                tableSearch.addEventListener('input', function(e) {
+                    tableState.search = e.target.value.trim();
+                    tableState.page = 1;
+                    renderCrawlTable();
+                });
+            }
             
-            document.getElementById('exportCsv').addEventListener('click', exportTableToCsv);
+            const tablePageSize = document.getElementById('tablePageSize');
+            if (tablePageSize) {
+                tablePageSize.addEventListener('change', function(e) {
+                    tableState.pageSize = parseInt(e.target.value);
+                    tableState.page = 1;
+                    renderCrawlTable();
+                });
+            }
+            
+            // 导出功能（如果存在对应元素）
+            const exportCsv = document.getElementById('exportCsv');
+            if (exportCsv) {
+                exportCsv.addEventListener('click', exportTableToCsv);
+            }
             
             document.getElementById('exportAnalysis').addEventListener('click', exportAnalysisToJson);
             
@@ -1025,8 +1035,8 @@
         function useConvertedCookies() {
             const jsonCookies = document.getElementById('jsonCookies').value;
             if (jsonCookies) {
-                document.getElementById('savedCookies').value = jsonCookies;
-                showSuccess('已应用', '转换后的Cookies已应用到保存区域');
+                document.getElementById('cookies').value = jsonCookies;
+                showSuccess('已应用', '转换后的Cookies已应用到爬取表单');
             }
         }
 
@@ -1413,6 +1423,8 @@
 
         function renderCrawlTable() {
             const tbody = document.getElementById('crawlDataTableBody');
+            if (!tbody) return; // 如果表格不存在，直接返回
+            
             tbody.innerHTML = '';
             if (!currentData || currentData.length === 0) return;
             // 搜索过滤
@@ -1446,13 +1458,18 @@
                 tbody.appendChild(row);
             });
             // 分页信息
-            document.getElementById('tablePageInfo').textContent = `共${total}条，${page}/${Math.ceil(total/pageSize)}页`;
+            const tablePageInfo = document.getElementById('tablePageInfo');
+            if (tablePageInfo) {
+                tablePageInfo.textContent = `共${total}条，${page}/${Math.ceil(total/pageSize)}页`;
+            }
             // 渲染分页按钮
             renderTablePagination(Math.ceil(total/pageSize));
         }
 
         function renderTablePagination(totalPages) {
             const ul = document.getElementById('tablePagination');
+            if (!ul) return; // 如果分页元素不存在，直接返回
+            
             ul.innerHTML = '';
             if (totalPages <= 1) return;
             for (let i = 1; i <= totalPages; i++) {
@@ -1625,6 +1642,11 @@
         // 导出表格为CSV
         function exportTableToCsv() {
             const table = document.getElementById('crawlDataTable');
+            if (!table) {
+                showError('导出失败', '未找到数据表格');
+                return;
+            }
+            
             const rows = table.rows;
             const csv = [];
 

@@ -253,8 +253,8 @@ class XHSCrawler:
                 
                 # 检查登录状态
                 if not self.is_logged_in():
-                    print("❌ 未登录或cookie无效，终止爬取")
-                    return self._create_mock_data(keyword, limit)
+                    print("❌ 未登录或cookie无效，请先配置有效的Cookie")
+                    raise Exception("Cookie无效或未登录，无法获取真实数据")
                 
                 # 构建搜索URL
                 search_url = f"{self.config.XHS_SEARCH_URL}?keyword={keyword}&type=note"
@@ -326,9 +326,8 @@ class XHSCrawler:
                     print(f"✅ 成功获取 {len(notes_data)} 条笔记")
                     break
                 else:
-                    print("⚠️ 未获取到笔记数据，将创建模拟数据")
-                    notes_data = self._create_mock_data(keyword, limit)
-                    break
+                    print("⚠️ 未获取到笔记数据")
+                    raise Exception("未能从页面提取到任何笔记数据，请检查网络连接或页面结构")
                     
             except Exception as e:
                 print(f"❌ 第 {attempt + 1} 次尝试失败: {e}")
@@ -462,59 +461,8 @@ class XHSCrawler:
             return None
 
     def _create_mock_data(self, keyword, limit):
-        """创建模拟数据（当爬取失败时使用）"""
-        print(f"🎭 创建关于 '{keyword}' 的模拟数据...")
-        
-        mock_titles = [
-            f"{keyword}分享",
-            f"我的{keyword}心得",
-            f"{keyword}推荐",
-            f"{keyword}体验",
-            f"{keyword}攻略",
-            f"{keyword}测评",
-            f"{keyword}教程",
-            f"{keyword}清单",
-            f"{keyword}对比",
-            f"{keyword}总结",
-            f"{keyword}必看",
-            f"{keyword}避坑",
-            f"{keyword}种草",
-            f"{keyword}拔草",
-            f"{keyword}合集"
-        ]
-        
-        mock_authors = [
-            "小红书用户001",
-            "生活达人",
-            "分享者",
-            "体验官",
-            "测评师",
-            "推荐官",
-            "达人",
-            "博主",
-            "用户",
-            "创作者",
-            "美食家",
-            "旅行者",
-            "美妆师",
-            "时尚达人",
-            "生活家"
-        ]
-        
-        mock_data = []
-        for i in range(min(limit, len(mock_titles))):
-            mock_data.append({
-                'title': f"{mock_titles[i % len(mock_titles)]} #{i+1}",
-                'author': mock_authors[i % len(mock_authors)],
-                'likes': str(random.randint(10, 5000)),
-                'link': f"https://www.xiaohongshu.com/explore/{random.randint(100000000, 999999999)}",
-                'publish_time': f"2024-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}",
-                'image_url': f"https://picsum.photos/300/400?random={i}",
-                'crawl_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            })
-        
-        print(f"✅ 创建了 {len(mock_data)} 条模拟数据")
-        return mock_data
+        """创建模拟数据（已禁用 - 只获取真实数据）"""
+        raise Exception("模拟数据功能已禁用，请配置有效的Cookie获取真实数据")
     
     def save_to_csv(self, data, filename=None):
         """保存数据到CSV文件"""

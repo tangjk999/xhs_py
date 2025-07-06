@@ -322,7 +322,7 @@ def crawl_data():
         
         topic = data.get('topic', '').strip()
         limit = int(data.get('limit', 20))
-        cookies = data.get('cookies', '').strip()
+        cookies = (data.get('cookies') or '').strip()
         
         # 参数验证
         if not topic:
