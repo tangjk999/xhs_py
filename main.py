@@ -15,7 +15,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from config import Config
 from crawler.xhs_crawler import XHSCrawler
-from crawler.xhs_simple_crawler import XHSSimpleCrawler
 from ai_analyzer.deepseek_analyzer import DeepSeekAnalyzer
 from web_app.app import app
 
@@ -318,6 +317,9 @@ def list_files_mode(args):
 
 def main():
     """主函数"""
+    # 创建配置实例
+    config = Config()
+    
     parser = argparse.ArgumentParser(
         description='小红书热门博客分析系统',
         formatter_class=argparse.RawDescriptionHelpFormatter,

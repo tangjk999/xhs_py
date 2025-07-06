@@ -5,8 +5,8 @@ Flask==2.3.3
 Flask-CORS==4.0.0
 
 # 数据处理
-pandas==2.1.4
-numpy==1.24.3
+pandas>=2.2.0
+numpy>=2.0.0
 
 # 网络请求
 requests==2.31.0
@@ -57,7 +57,7 @@ asyncio==3.4.3
 pathlib2==2.3.7
 
 # 加密和安全
-cryptography==41.0.8
+cryptography>=41.0.8
 
 # 图像处理（可选）
 Pillow==10.1.0

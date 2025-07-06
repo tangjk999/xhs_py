@@ -1,0 +1,19 @@
+[build]
+  publish = "web_app/static"
+  command = "python -m pip install -r requirements.txt && python web_app/app.py"
+
+[build.environment]
+  PYTHON_VERSION = "3.13"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[functions]
+  directory = "functions"
+
+[dev]
+  command = "python web_app/app.py"
+  port = 8080
+  publish = "web_app/static" 

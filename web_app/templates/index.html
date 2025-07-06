@@ -13,55 +13,63 @@
             --secondary-color: #ff6b81;
             --accent-color: #ff8fa3;
             --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
+            --light-color: #f8f9fa;
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
         }
         
         body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: var(--dark-color);
         }
         
         .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .navbar-brand {
-            color: var(--primary-color) !important;
-            font-weight: bold;
-            font-size: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
         
         .main-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             margin: 2rem auto;
             padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
         
         .card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
-            overflow: hidden;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         
         .card-header {
@@ -69,50 +77,32 @@
             color: white;
             border-radius: 15px 15px 0 0 !important;
             border: none;
-            padding: 1.5rem;
-            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+        
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
         
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border: none;
-            border-radius: 25px;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255, 36, 66, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 36, 66, 0.4);
         }
         
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #20c997);
-            border: none;
-            border-radius: 25px;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
-            border: none;
-            border-radius: 25px;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control {
-            border-radius: 15px;
-            border: 2px solid #e9ecef;
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
             padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
         }
         
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(255, 36, 66, 0.25);
         }
@@ -123,77 +113,12 @@
             padding: 2rem;
         }
         
-        .spinner-border {
-            color: var(--primary-color);
-        }
-        
         .result-section {
             display: none;
         }
         
-        .metric-card {
-            text-align: center;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-            margin-bottom: 1rem;
-        }
-        
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .metric-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin: 1rem 0;
-            background: white;
-            border-radius: 15px;
-            padding: 1rem;
-        }
-        
-        .analysis-text {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            white-space: pre-line;
-            line-height: 1.6;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .file-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .file-item {
-            padding: 0.75rem;
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        .file-item:hover {
-            background: #f8f9fa;
-            border-color: var(--primary-color);
-            transform: translateX(5px);
-        }
-        
         .alert {
-            border-radius: 15px;
+            border-radius: 10px;
             border: none;
             margin-bottom: 1rem;
         }
@@ -208,11 +133,6 @@
             color: white;
         }
         
-        .alert-warning {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: white;
-        }
-        
         .progress {
             height: 8px;
             border-radius: 10px;
@@ -224,18 +144,6 @@
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 10px;
         }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-        }
-        
-        .status-success { background-color: var(--success-color); }
-        .status-warning { background-color: var(--warning-color); }
-        .status-danger { background-color: var(--danger-color); }
         
         .tab-content {
             padding: 1rem 0;
@@ -302,31 +210,114 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
         
-        .tooltip-custom {
-            position: relative;
-            display: inline-block;
+        /* 博客列表样式 */
+        .blog-list-item {
+            border: none;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         
-        .tooltip-custom .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
+        .blog-list-item:hover {
+            background: linear-gradient(135deg, rgba(255, 36, 66, 0.1), rgba(255, 107, 129, 0.1));
+            transform: translateX(5px);
+        }
+        
+        .blog-list-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-left: 4px solid white;
+        }
+        
+        .blog-list-item .blog-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .blog-list-item .blog-meta {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .blog-list-item .blog-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .blog-list-item .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        /* 博客详情样式 */
+        .blog-detail-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .blog-detail-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .blog-detail-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
             text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .tooltip-custom:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .blog-detail-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .blog-detail-section {
+            margin-bottom: 2rem;
+        }
+        
+        .blog-detail-section h5 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
         }
         
         @media (max-width: 768px) {
@@ -342,6 +333,18 @@
             .chart-container {
                 height: 250px;
             }
+            
+            .blog-list-item {
+                padding: 1rem;
+            }
+            
+            .blog-detail-header {
+                padding: 1rem;
+            }
+            
+            .blog-detail-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -351,7 +354,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-chart-line me-2"></i>
-                小红书热门博客分析系统
+                小红书分析系统
             </a>
             <div class="navbar-nav ms-auto">
                 <span class="navbar-text">
@@ -367,28 +370,16 @@
         <div class="main-container">
             <!-- 系统状态 -->
             <div class="row mb-4">
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <div class="metric-card">
                         <div class="metric-value" id="total-notes">0</div>
                         <div class="metric-label">总笔记数</div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <div class="metric-card">
                         <div class="metric-value" id="avg-likes">0</div>
                         <div class="metric-label">平均点赞</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value" id="unique-authors">0</div>
-                        <div class="metric-label">作者数量</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="metric-card">
-                        <div class="metric-value" id="analysis-count">0</div>
-                        <div class="metric-label">分析次数</div>
                     </div>
                 </div>
             </div>
@@ -415,12 +406,18 @@
                         <i class="fas fa-cog me-2"></i>设置
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">
+                        <i class="fas fa-info-circle me-2"></i>关于
+                    </button>
+                </li>
             </ul>
 
             <div class="tab-content" id="mainTabsContent">
                 <!-- 爬取标签页 -->
                 <div class="tab-pane fade show active" id="crawl" role="tabpanel">
-                    <div class="card">
+                    <!-- 爬取设置 -->
+                    <div class="card mb-4">
                         <div class="card-header">
                             <i class="fas fa-spider me-2"></i>
                             智能爬取设置
@@ -447,12 +444,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="cookies" class="form-label">Cookies（可选）</label>
-                                    <textarea class="form-control" id="cookies" name="cookies" rows="3" 
-                                              placeholder="粘贴小红书cookies字符串，用于登录状态..."></textarea>
-                                    <div class="form-text">如果不提供cookies，将使用模拟数据</div>
-                                </div>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-play me-2"></i>开始爬取
                                 </button>
@@ -472,16 +463,42 @@
                         </div>
                     </div>
 
-                    <!-- 爬取结果 -->
-                    <div class="result-section" id="crawlResult">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-check-circle me-2"></i>
-                                爬取结果
+                    <!-- 数据展示区域 -->
+                    <div class="result-section" id="crawlResult" style="display: none;">
+                        <div class="row">
+                            <!-- 左侧：博客列表 -->
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fas fa-list me-2"></i>
+                                        博客列表
+                                        <span class="badge bg-primary ms-2" id="blogCount">0</span>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="list-group list-group-flush" id="blogList">
+                                            <!-- 博客列表项将在这里动态生成 -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div id="crawlStatus"></div>
-                                <div id="crawlData"></div>
+                            
+                            <!-- 右侧：详细分析 -->
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        详细分析
+                                        <span class="text-muted ms-2" id="selectedBlogTitle">请选择左侧博客查看详情</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="blogDetail">
+                                            <div class="text-center text-muted py-5">
+                                                <i class="fas fa-hand-pointer fa-3x mb-3"></i>
+                                                <p>点击左侧博客查看详细分析</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -491,18 +508,18 @@
                 <div class="tab-pane fade" id="analyze" role="tabpanel">
                     <div class="card">
                         <div class="card-header">
-                            <i class="fas fa-brain me-2"></i>
+                                <i class="fas fa-brain me-2"></i>
                             AI深度分析
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="mb-3">
+                            <div class="mb-3">
                                         <label for="analysisFile" class="form-label">选择数据文件</label>
                                         <select class="form-control" id="analysisFile" name="analysisFile">
                                             <option value="">请先爬取数据...</option>
-                                        </select>
-                                    </div>
+                                </select>
+                            </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -518,56 +535,70 @@
                             <button type="button" class="btn btn-success" id="analyzeBtn">
                                 <i class="fas fa-magic me-2"></i>开始分析
                             </button>
+                            </div>
                         </div>
-                    </div>
 
                     <!-- 分析进度 -->
                     <div class="loading" id="analyzeLoading">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">分析中...</span>
-                        </div>
+                    </div>
                         <p class="mt-3">正在进行AI分析，请稍候...</p>
                         <div class="progress">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" 
                                  role="progressbar" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- 分析结果 -->
-                    <div class="result-section" id="analyzeResult">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-chart-pie me-2"></i>
-                                分析结果
-                            </div>
-                            <div class="card-body">
-                                <div id="analysisContent"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+            </div>
+
+            <!-- 分析结果 -->
+                    <div class="result-section" id="analyzeResult">
+                <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                            <i class="fas fa-chart-pie me-2"></i>
+                            分析结果
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="exportAnalysis">
+                                        <i class="fas fa-download me-1"></i>导出
+                                    </button>
+                                </div>
+                    </div>
+                    <div class="card-body">
+                                <div id="analysisContent"></div>
+                                </div>
+                            </div>
+                                </div>
+                            </div>
 
                 <!-- 可视化标签页 -->
                 <div class="tab-pane fade" id="visualize" role="tabpanel">
                     <div class="card">
-                        <div class="card-header">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            数据可视化
-                        </div>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-chart-bar me-2"></i>
+                                数据可视化
+                                </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="downloadCharts">
+                                    <i class="fas fa-image me-1"></i>下载
+                                </button>
+                            </div>
+                                </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="chart-container">
                                         <canvas id="authorChart"></canvas>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
                                 <div class="col-md-6">
                                     <div class="chart-container">
                                         <canvas id="likesChart"></canvas>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                        <div class="row">
                                 <div class="col-md-12">
                                     <div class="chart-container">
                                         <canvas id="trendChart"></canvas>
@@ -580,12 +611,12 @@
 
                 <!-- 设置标签页 -->
                 <div class="tab-pane fade" id="settings" role="tabpanel">
-                    <div class="card">
-                        <div class="card-header">
+                                <div class="card">
+                                    <div class="card-header">
                             <i class="fas fa-cog me-2"></i>
                             系统设置
-                        </div>
-                        <div class="card-body">
+                                    </div>
+                                    <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -593,32 +624,62 @@
                                         <input type="password" class="form-control" id="apiKey" name="apiKey" 
                                                placeholder="输入你的DeepSeek API密钥">
                                         <div class="form-text">用于AI分析功能，不填则使用模拟分析</div>
-                                    </div>
+                                        </div>
                                     <button type="button" class="btn btn-primary" id="saveApiKey">
                                         <i class="fas fa-save me-2"></i>保存API密钥
                                     </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="savedCookies" class="form-label">保存的Cookies</label>
-                                        <textarea class="form-control" id="savedCookies" name="savedCookies" rows="3" 
-                                                  placeholder="已保存的cookies..."></textarea>
                                     </div>
-                                    <button type="button" class="btn btn-warning" id="saveCookies">
-                                        <i class="fas fa-save me-2"></i>保存Cookies
-                                    </button>
+                                <!-- Cookie转换器 -->
+                                <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                            <i class="fas fa-exchange-alt me-2"></i>
+                                            Cookie转换与保存
+                                    </div>
+                                    <div class="card-body">
+                                            <!-- Cookie状态显示 -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Cookie状态</label>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div id="cookieStatus" class="badge bg-secondary me-2">检查中...</div>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" id="checkCookieStatus">
+                                                        <i class="fas fa-sync-alt"></i>检查
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted" id="cookieStatusMessage">正在检查Cookie有效性...</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="rawCookies" class="form-label">原始Cookie格式</label>
+                                                <textarea class="form-control" id="rawCookies" name="rawCookies" rows="3" 
+                                                          placeholder="粘贴从浏览器复制的cookie格式..."></textarea>
+                                        </div>
+                                            <div class="d-flex">
+                                                <button type="button" class="btn btn-info me-2" id="convertCookies">
+                                                    <i class="fas fa-magic me-2"></i>转换
+                                                </button>
+                                                <button type="button" class="btn btn-success" id="saveCookies">
+                                                    <i class="fas fa-save me-2"></i>保存Cookies
+                                                </button>
+                                            </div>
+                                            <div class="mt-3" id="convertedCookies" style="display: none;">
+                                                <label class="form-label">转换结果</label>
+                                                <textarea class="form-control" id="jsonCookies" name="jsonCookies" rows="3" readonly></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                     <!-- 文件管理 -->
                     <div class="card">
-                        <div class="card-header">
+                            <div class="card-header">
                             <i class="fas fa-folder me-2"></i>
                             文件管理
-                        </div>
-                        <div class="card-body">
+                            </div>
+                            <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6>数据文件</h6>
@@ -627,6 +688,58 @@
                                 <div class="col-md-6">
                                     <h6>分析文件</h6>
                                     <div class="file-list" id="analysisFiles"></div>
+                                </div>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+
+                <!-- 关于标签页 -->
+                <div class="tab-pane fade" id="about" role="tabpanel">
+                    <div class="card">
+                            <div class="card-header">
+                            <i class="fas fa-info-circle me-2"></i>
+                            关于项目
+                            </div>
+                            <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5>小红书分析系统</h5>
+                                    <p class="text-muted">基于Python的小红书数据爬取与AI分析系统</p>
+                                    
+                                    <h6>主要功能</h6>
+                                    <ul>
+                                        <li>🕷️ 智能爬取：从小红书爬取指定主题的热门博客数据</li>
+                                        <li>🤖 AI分析：利用DeepSeek大模型进行深度分析</li>
+                                        <li>📊 可视化展示：现代化界面展示分析结果</li>
+                                        <li>🔧 数据导出：支持多种格式导出</li>
+                                    </ul>
+                                    
+                                    <h6>技术栈</h6>
+                                    <p>Python + Flask + Selenium + DeepSeek API + Bootstrap</p>
+                                    
+                                    <h6>部署方式</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <a href="https://app.netlify.com/start/deploy?repository=https://github.com/your-repo/xhs_py" target="_blank" class="btn btn-sm btn-primary">
+                                                <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify">
+                                            </a>
+                            </div>
+                                        <div class="col-md-6">
+                                            <code>docker run -p 8080:8080 xhs-analyzer</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6>项目信息</h6>
+                                            <p><strong>版本：</strong>1.0.0</p>
+                                            <p><strong>许可证：</strong>MIT</p>
+                                            <hr>
+                                            <a href="#" class="btn btn-sm btn-outline-primary" onclick="switchToTab('crawl')">开始使用</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -641,6 +754,9 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
+    <!-- Toast弹窗容器 -->
+    <div id="toastContainer" style="position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 9999; min-width: 320px; max-width: 90vw; pointer-events: none;"></div>
+
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
@@ -648,6 +764,7 @@
         // 全局变量
         let currentData = null;
         let charts = {};
+        let tableState = { page: 1, pageSize: 20, search: '' };
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -659,6 +776,9 @@
             
             // 绑定事件
             bindEvents();
+            
+            // 自动检查Cookie状态
+            setTimeout(checkCookieStatus, 1000);
         });
 
         // 更新时间
@@ -679,9 +799,44 @@
             document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
             document.getElementById('saveCookies').addEventListener('click', saveCookies);
             
+            // Cookie转换
+            document.getElementById('convertCookies').addEventListener('click', convertCookies);
+            document.getElementById('useConvertedCookies').addEventListener('click', useConvertedCookies);
+            
+            // 清空Cookies
+            document.getElementById('clearCookies').addEventListener('click', clearCookies);
+            
+            // 检查Cookie状态
+            document.getElementById('checkCookieStatus').addEventListener('click', checkCookieStatus);
+            
             // 回到顶部
             document.getElementById('scrollToTop').addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.getElementById('tableSearch').addEventListener('input', function(e) {
+                tableState.search = e.target.value.trim();
+                tableState.page = 1;
+                renderCrawlTable();
+            });
+            document.getElementById('tablePageSize').addEventListener('change', function(e) {
+                tableState.pageSize = parseInt(e.target.value);
+                tableState.page = 1;
+                renderCrawlTable();
+            });
+            
+            document.getElementById('exportCsv').addEventListener('click', exportTableToCsv);
+            
+            document.getElementById('exportAnalysis').addEventListener('click', exportAnalysisToJson);
+            
+            document.getElementById('downloadCharts').addEventListener('click', downloadCharts);
+
+            document.getElementById('cookies').addEventListener('input', function(e) {
+                const val = e.target.value.trim();
+                if (val.startsWith('{')) {
+                    e.target.value = '';
+                    showError('格式错误', '请粘贴浏览器复制的原始cookie（多字段、tab分隔），不要粘贴JSON格式！');
+                }
             });
         }
 
@@ -714,6 +869,7 @@
                     showSuccess('爬取成功！', result.message);
                     currentData = result.data;
                     updateMetrics(result.data);
+                    displayCrawlData(result.data); // 显示爬取数据
                     loadFiles(); // 重新加载文件列表
                 } else {
                     showError('爬取失败', result.error);
@@ -795,8 +951,20 @@
 
         // 保存Cookies
         async function saveCookies() {
-            const cookies = document.getElementById('savedCookies').value;
-            
+            // 优先取转换结果，否则取原始输入
+            let cookies = document.getElementById('jsonCookies').value.trim();
+            if (!cookies) {
+                cookies = document.getElementById('rawCookies').value.trim();
+            }
+            // 校验JSON格式
+            try {
+                if (cookies) {
+                    JSON.parse(cookies);
+                }
+            } catch (e) {
+                showError('保存失败', 'Cookies不是有效的JSON格式，请使用转换器转换后再保存');
+                return;
+            }
             try {
                 const response = await fetch('/api/save-cookies', {
                     method: 'POST',
@@ -805,16 +973,100 @@
                     },
                     body: JSON.stringify({ cookies: cookies })
                 });
-                
                 const result = await response.json();
-                
                 if (result.success) {
                     showSuccess('保存成功', result.message);
+                    // 自动刷新爬取表单内容
+                    document.getElementById('cookies').value = cookies;
                 } else {
                     showError('保存失败', result.error);
                 }
             } catch (error) {
                 showError('网络错误', error.message);
+            }
+        }
+
+        // 转换Cookies格式
+        function convertCookies() {
+            const rawCookies = document.getElementById('rawCookies').value.trim();
+            if (!rawCookies) {
+                showError('请输入Cookie数据', '请粘贴从浏览器复制的Cookie格式');
+                return;
+            }
+
+            try {
+                const lines = rawCookies.split('\n').filter(line => line.trim());
+                const cookieObj = {};
+
+                lines.forEach(line => {
+                    const parts = line.split('\t');
+                    if (parts.length >= 2) {
+                        const name = parts[0].trim();
+                        const value = parts[1].trim();
+                        
+                        // 过滤掉空值和非cookie字段
+                        if (name && value && !name.startsWith('__') && !name.includes('RequestId')) {
+                            cookieObj[name] = value;
+                        }
+                    }
+                });
+
+                const jsonCookies = JSON.stringify(cookieObj, null, 2);
+                document.getElementById('jsonCookies').value = jsonCookies;
+                document.getElementById('convertedCookies').style.display = 'block';
+                
+                showSuccess('转换成功', `成功转换了 ${Object.keys(cookieObj).length} 个Cookie`);
+            } catch (error) {
+                showError('转换失败', 'Cookie格式不正确，请检查输入');
+            }
+        }
+
+        // 使用转换后的Cookies
+        function useConvertedCookies() {
+            const jsonCookies = document.getElementById('jsonCookies').value;
+            if (jsonCookies) {
+                document.getElementById('savedCookies').value = jsonCookies;
+                showSuccess('已应用', '转换后的Cookies已应用到保存区域');
+            }
+        }
+
+        // 清空Cookies
+        function clearCookies() {
+            document.getElementById('cookies').value = '';
+            showSuccess('已清空', 'Cookie输入框已清空');
+        }
+
+        // 检查Cookie状态
+        async function checkCookieStatus() {
+            const statusBadge = document.getElementById('cookieStatus');
+            const statusMessage = document.getElementById('cookieStatusMessage');
+            const checkButton = document.getElementById('checkCookieStatus');
+            
+            // 更新状态为检查中
+            statusBadge.className = 'badge bg-secondary me-2';
+            statusBadge.textContent = '检查中...';
+            statusMessage.textContent = '正在检查Cookie有效性...';
+            checkButton.disabled = true;
+            
+            try {
+                const response = await fetch('/api/cookie-status');
+                const result = await response.json();
+                
+                if (result.valid) {
+                    statusBadge.className = 'badge bg-success me-2';
+                    statusBadge.textContent = '有效';
+                    statusMessage.textContent = `Cookie有效，最后检查时间：${result.last_check || '未知'}`;
+                } else {
+                    statusBadge.className = 'badge bg-danger me-2';
+                    statusBadge.textContent = '无效';
+                    statusMessage.textContent = result.message || 'Cookie无效，请更新';
+                }
+            } catch (error) {
+                statusBadge.className = 'badge bg-warning me-2';
+                statusBadge.textContent = '检查失败';
+                statusMessage.textContent = '无法连接到服务器检查Cookie状态';
+            } finally {
+                checkButton.disabled = false;
             }
         }
 
@@ -827,12 +1079,12 @@
                 if (apiResult.success) {
                     document.getElementById('apiKey').value = apiResult.api_key;
                 }
-                
                 // 加载Cookies
                 const cookiesResponse = await fetch('/api/load-cookies');
                 const cookiesResult = await cookiesResponse.json();
                 if (cookiesResult.success) {
-                    document.getElementById('savedCookies').value = cookiesResult.cookies;
+                    // 自动填充到爬取表单
+                    document.getElementById('cookies').value = cookiesResult.cookies;
                 }
             } catch (error) {
                 console.error('加载设置失败:', error);
@@ -914,30 +1166,33 @@
             document.getElementById(resultId).style.display = 'none';
         }
 
-        // 显示成功消息
+        // 显示成功消息（底部toast弹窗）
         function showSuccess(title, message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success';
-            alertDiv.innerHTML = `
-                <strong>${title}</strong><br>
-                ${message}
-            `;
-            document.querySelector('.main-container').insertBefore(alertDiv, document.querySelector('.main-container').firstChild);
-            
-            setTimeout(() => alertDiv.remove(), 5000);
+            showToast(title, message, 'success');
         }
 
-        // 显示错误消息
+        // 显示错误消息（底部toast弹窗）
         function showError(title, message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger';
-            alertDiv.innerHTML = `
-                <strong>${title}</strong><br>
-                ${message}
+            showToast(title, message, 'danger');
+        }
+
+        // 通用toast弹窗
+        function showToast(title, message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type}`;
+            toast.style = 'display: flex; justify-content: space-between; align-items: center; min-width: 320px; max-width: 90vw; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); pointer-events: auto; padding: 16px 24px; font-size: 1rem;';
+            toast.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <strong style="font-size: 1.1em;">${title}</strong>
+                    <span style="margin-top: 2px;">${message}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-3" aria-label="关闭" style="pointer-events: auto;" onclick="this.parentNode.remove()"></button>
             `;
-            document.querySelector('.main-container').insertBefore(alertDiv, document.querySelector('.main-container').firstChild);
-            
-            setTimeout(() => alertDiv.remove(), 5000);
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
         }
 
         // 更新指标
@@ -949,10 +1204,271 @@
                 const likes = data.map(item => parseInt(item.likes) || 0);
                 const avgLikes = likes.reduce((a, b) => a + b, 0) / likes.length;
                 document.getElementById('avg-likes').textContent = Math.round(avgLikes);
+            }
+        }
+
+        // 显示爬取数据
+        function displayCrawlData(data) {
+            currentData = data;
+            updateMetrics(data);
+            renderBlogList(data);
+            showResult('crawlResult');
+        }
+
+        // 渲染博客列表
+        function renderBlogList(data) {
+            const blogList = document.getElementById('blogList');
+            const blogCount = document.getElementById('blogCount');
+            
+            blogList.innerHTML = '';
+            blogCount.textContent = data ? data.length : 0;
+            
+            if (!data || data.length === 0) {
+                blogList.innerHTML = '<div class="text-center text-muted py-3">暂无数据</div>';
+                return;
+            }
+            
+            data.forEach((blog, index) => {
+                const blogItem = document.createElement('div');
+                blogItem.className = 'list-group-item blog-list-item';
+                blogItem.onclick = () => selectBlog(index);
                 
-                // 计算唯一作者数
-                const authors = new Set(data.map(item => item.author));
-                document.getElementById('unique-authors').textContent = authors.size;
+                blogItem.innerHTML = `
+                    <div class="blog-title">${blog.title || '无标题'}</div>
+                    <div class="blog-meta">
+                        <i class="fas fa-user me-1"></i>${blog.author || '未知作者'}
+                    </div>
+                    <div class="blog-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-heart text-danger"></i>
+                            <span>${blog.likes || 0}</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-star text-warning"></i>
+                            <span>${blog.collects || 0}</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-comment text-info"></i>
+                            <span>${blog.comments || 0}</span>
+                        </div>
+                    </div>
+                `;
+                
+                blogList.appendChild(blogItem);
+            });
+        }
+
+        // 选择博客显示详情
+        function selectBlog(index) {
+            // 移除所有active类
+            document.querySelectorAll('.blog-list-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 添加active类到选中的博客
+            const selectedItem = document.querySelectorAll('.blog-list-item')[index];
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+            
+            // 显示博客详情
+            displayBlogDetail(currentData[index]);
+        }
+
+        // 显示博客详情
+        function displayBlogDetail(blog) {
+            const blogDetail = document.getElementById('blogDetail');
+            const selectedBlogTitle = document.getElementById('selectedBlogTitle');
+            
+            selectedBlogTitle.textContent = blog.title || '无标题';
+            
+            blogDetail.innerHTML = `
+                <div class="blog-detail-header">
+                    <div class="blog-detail-title">${blog.title || '无标题'}</div>
+                    <div class="blog-detail-author">
+                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        <div>
+                            <div class="fw-bold">${blog.author || '未知作者'}</div>
+                            <small class="text-muted">${blog.publish_time || '发布时间未知'}</small>
+                        </div>
+                    </div>
+                    <div class="blog-detail-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${blog.likes || 0}</div>
+                            <div class="stat-label">点赞</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${blog.collects || 0}</div>
+                            <div class="stat-label">收藏</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${blog.comments || 0}</div>
+                            <div class="stat-label">评论</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${blog.share || 0}</div>
+                            <div class="stat-label">分享</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="blog-detail-content">
+                    <div class="blog-detail-section">
+                        <h5><i class="fas fa-info-circle me-2"></i>基本信息</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>标题：</strong>${blog.title || '无标题'}</p>
+                                <p><strong>作者：</strong>${blog.author || '未知作者'}</p>
+                                <p><strong>发布时间：</strong>${blog.publish_time || '未知'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>链接：</strong>${blog.url ? `<a href="${blog.url}" target="_blank">查看原文</a>` : '无链接'}</p>
+                                <p><strong>内容类型：</strong>${blog.content_type || '图文'}</p>
+                                <p><strong>标签：</strong>${blog.tags ? blog.tags.join(', ') : '无标签'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="blog-detail-section">
+                        <h5><i class="fas fa-chart-bar me-2"></i>数据分析</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>互动率分析</h6>
+                                        <p>点赞率：${calculateEngagementRate(blog.likes, blog.views)}%</p>
+                                        <p>收藏率：${calculateEngagementRate(blog.collects, blog.views)}%</p>
+                                        <p>评论率：${calculateEngagementRate(blog.comments, blog.views)}%</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>内容质量评估</h6>
+                                        <p>综合评分：${calculateContentScore(blog)}/10</p>
+                                        <p>热度等级：${getHeatLevel(blog.likes)}</p>
+                                        <p>推荐指数：${getRecommendationLevel(blog)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${blog.description ? `
+                    <div class="blog-detail-section">
+                        <h5><i class="fas fa-align-left me-2"></i>内容摘要</h5>
+                        <p>${blog.description}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // 计算互动率
+        function calculateEngagementRate(interactions, views) {
+            if (!views || views === 0) return 0;
+            return ((interactions || 0) / views * 100).toFixed(2);
+        }
+
+        // 计算内容质量评分
+        function calculateContentScore(blog) {
+            let score = 5; // 基础分
+            
+            // 根据点赞数加分
+            const likes = parseInt(blog.likes) || 0;
+            if (likes > 1000) score += 2;
+            else if (likes > 100) score += 1;
+            
+            // 根据收藏数加分
+            const collects = parseInt(blog.collects) || 0;
+            if (collects > 500) score += 2;
+            else if (collects > 50) score += 1;
+            
+            // 根据评论数加分
+            const comments = parseInt(blog.comments) || 0;
+            if (comments > 100) score += 1;
+            
+            return Math.min(score, 10);
+        }
+
+        // 获取热度等级
+        function getHeatLevel(likes) {
+            const likeCount = parseInt(likes) || 0;
+            if (likeCount > 10000) return '🔥 爆火';
+            if (likeCount > 5000) return '🔥 热门';
+            if (likeCount > 1000) return '🔥 较热';
+            if (likeCount > 100) return '🔥 一般';
+            return '🔥 冷门';
+        }
+
+        // 获取推荐指数
+        function getRecommendationLevel(blog) {
+            const score = calculateContentScore(blog);
+            if (score >= 8) return '⭐⭐⭐⭐⭐ 强烈推荐';
+            if (score >= 6) return '⭐⭐⭐⭐ 推荐';
+            if (score >= 4) return '⭐⭐⭐ 一般';
+            return '⭐⭐ 不推荐';
+        }
+
+        function renderCrawlTable() {
+            const tbody = document.getElementById('crawlDataTableBody');
+            tbody.innerHTML = '';
+            if (!currentData || currentData.length === 0) return;
+            // 搜索过滤
+            let filtered = currentData;
+            if (tableState.search) {
+                filtered = currentData.filter(item =>
+                    (item.title && item.title.includes(tableState.search)) ||
+                    (item.author && item.author.includes(tableState.search))
+                );
+            }
+            // 分页
+            const total = filtered.length;
+            const pageSize = tableState.pageSize;
+            const page = tableState.page;
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filtered.slice(start, end);
+            // 渲染表格
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${start + index + 1}</td>
+                    <td><div class="text-truncate" style="max-width: 200px;" title="${item.title || '无标题'}">${item.title || '无标题'}</div></td>
+                    <td><div class="text-truncate" style="max-width: 120px;" title="${item.author || '未知作者'}">${item.author || '未知作者'}</div></td>
+                    <td><span class="badge bg-success">${item.likes || 0}</span></td>
+                    <td><span class="badge bg-info">${item.collects || 0}</span></td>
+                    <td><span class="badge bg-warning">${item.comments || 0}</span></td>
+                    <td><small class="text-muted">${item.publish_time || '未知'}</small></td>
+                    <td>${item.url ? `<a href="${item.url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt"></i></a>` : '<span class="text-muted">无链接</span>'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            // 分页信息
+            document.getElementById('tablePageInfo').textContent = `共${total}条，${page}/${Math.ceil(total/pageSize)}页`;
+            // 渲染分页按钮
+            renderTablePagination(Math.ceil(total/pageSize));
+        }
+
+        function renderTablePagination(totalPages) {
+            const ul = document.getElementById('tablePagination');
+            ul.innerHTML = '';
+            if (totalPages <= 1) return;
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === tableState.page ? ' active' : '');
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    tableState.page = i;
+                    renderCrawlTable();
+                };
+                li.appendChild(a);
+                ul.appendChild(li);
             }
         }
 
@@ -1104,6 +1620,63 @@
                 result.push(colors[i % colors.length]);
             }
             return result;
+        }
+
+        // 导出表格为CSV
+        function exportTableToCsv() {
+            const table = document.getElementById('crawlDataTable');
+            const rows = table.rows;
+            const csv = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.cells;
+                const rowData = [];
+                for (let j = 0; j < cells.length; j++) {
+                    rowData.push(cells[j].textContent);
+                }
+                csv.push(rowData.join(','));
+            }
+
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.href = url;
+            link.download = '爬取数据.csv';
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        // 导出分析结果为JSON
+        function exportAnalysisToJson() {
+            const analysisContent = document.getElementById('analysisContent').innerHTML;
+            const jsonContent = JSON.stringify({ analysis: analysisContent }, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.href = url;
+            link.download = '分析结果.json';
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        // 下载图表
+        function downloadCharts() {
+            // 实现下载图表的逻辑
+            console.log('下载图表');
+        }
+        
+        // 切换标签页
+        function switchToTab(tabName) {
+            const tab = document.getElementById(tabName + '-tab');
+            if (tab) {
+                tab.click();
+            }
         }
     </script>
 </body>

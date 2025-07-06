@@ -4,15 +4,16 @@ import os
 import sys
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback
+import threading
+import time
 
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import Config
 from crawler.xhs_crawler import XHSCrawler
-from crawler.xhs_simple_crawler import XHSSimpleCrawler
 from ai_analyzer.deepseek_analyzer import DeepSeekAnalyzer
 
 app = Flask(__name__)
@@ -34,6 +35,8 @@ COOKIES_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 # 全局变量
 crawler = None
 analyzer = None
+cookie_update_thread = None
+cookie_last_check = None
 
 def save_api_key(api_key):
     """保存API密钥到本地文件"""
@@ -58,9 +61,48 @@ def load_api_key():
         print(f"加载API密钥失败: {e}")
         return ''
 
+def convert_cookies_format(cookies_text):
+    """将复制的cookie格式转换为JSON格式"""
+    try:
+        if not cookies_text.strip():
+            return ""
+        
+        # 按行分割
+        lines = cookies_text.strip().split('\n')
+        cookie_dict = {}
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # 按制表符分割
+            parts = line.split('\t')
+            if len(parts) >= 2:
+                name = parts[0].strip()
+                value = parts[1].strip()
+                
+                # 过滤掉空值
+                if name and value:
+                    cookie_dict[name] = value
+        
+        # 转换为JSON字符串
+        if cookie_dict:
+            return json.dumps(cookie_dict, ensure_ascii=False, indent=2)
+        else:
+            return ""
+            
+    except Exception as e:
+        print(f"Cookie转换失败: {e}")
+        return ""
+
 def save_cookies(cookies):
     """保存cookies到本地文件"""
     try:
+        # 如果是原始格式，先转换
+        if cookies and '\t' in cookies:
+            cookies = convert_cookies_format(cookies)
+        
         data = {'xhs_cookies': cookies}
         with open(COOKIES_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -87,15 +129,63 @@ def get_crawler():
         crawler = XHSCrawler()
     return crawler
 
-def get_simple_crawler():
-    """获取简单爬虫实例"""
-    return XHSSimpleCrawler()
+
 
 def get_analyzer():
     global analyzer
     if analyzer is None:
         analyzer = DeepSeekAnalyzer()
     return analyzer
+
+def check_cookie_validity():
+    """检查cookie是否有效"""
+    try:
+        cookies = load_cookies()
+        if not cookies:
+            return False, "未设置cookies"
+        
+        # 创建临时爬虫实例检查登录状态
+        temp_crawler = XHSCrawler()
+        if temp_crawler.init_driver(cookies):
+            is_valid = temp_crawler.is_logged_in()
+            temp_crawler.driver.quit()
+            return is_valid, "登录状态正常" if is_valid else "登录已过期"
+        else:
+            return False, "无法初始化浏览器"
+            
+    except Exception as e:
+        return False, f"检查失败: {str(e)}"
+
+def update_cookies_automatically():
+    """自动更新cookies（定时任务）"""
+    global cookie_last_check
+    
+    while True:
+        try:
+            print("🔄 检查cookie有效性...")
+            is_valid, message = check_cookie_validity()
+            cookie_last_check = datetime.now()
+            
+            if not is_valid:
+                print(f"⚠️ Cookie无效: {message}")
+                print("💡 请手动更新cookies")
+            else:
+                print(f"✅ Cookie有效: {message}")
+            
+            # 每30分钟检查一次
+            time.sleep(30 * 60)
+            
+        except Exception as e:
+            print(f"❌ Cookie检查出错: {e}")
+            time.sleep(5 * 60)  # 出错后5分钟重试
+
+def start_cookie_update_thread():
+    """启动cookie更新线程"""
+    global cookie_update_thread
+    if cookie_update_thread is None or not cookie_update_thread.is_alive():
+        cookie_update_thread = threading.Thread(target=update_cookies_automatically, daemon=True)
+        cookie_update_thread.start()
+        print("🔄 Cookie自动更新线程已启动")
 
 def get_data_files():
     """获取数据文件列表"""
@@ -399,11 +489,58 @@ def download_file(filename):
 @app.route('/api/health')
 def health_check():
     """健康检查"""
+    import platform
+    import sys
+    from datetime import datetime
+    
+    # 获取系统信息
+    system_info = {
+        'python_version': sys.version,
+        'platform': platform.platform(),
+        'architecture': platform.architecture()[0],
+        'processor': platform.processor()
+    }
+    
+    # 获取应用信息
+    app_info = {
+        'version': '1.0.0',
+        'name': '小红书热门博客分析系统',
+        'description': '基于Python的小红书数据爬取与AI分析系统'
+    }
+    
+    # 获取依赖信息
+    try:
+        import selenium
+        import pandas
+        import flask
+        dependencies = {
+            'selenium': selenium.__version__,
+            'pandas': pandas.__version__,
+            'flask': flask.__version__
+        }
+    except:
+        dependencies = {'error': '无法获取依赖版本信息'}
+    
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'version': '1.0.0'
+        'system': system_info,
+        'app': app_info,
+        'dependencies': dependencies
     })
+
+@app.route('/api/cookie-status')
+def cookie_status():
+    """检查cookie状态"""
+    try:
+        is_valid, message = check_cookie_validity()
+        return jsonify({
+            'valid': is_valid,
+            'message': message,
+            'last_check': cookie_last_check.strftime('%Y-%m-%d %H:%M:%S') if cookie_last_check else None
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(404)
 def not_found(error):
@@ -418,8 +555,11 @@ if __name__ == '__main__':
     print(f"📁 数据目录: {config.DATA_DIR}")
     print(f"🌐 访问地址: http://{config.FLASK_HOST}:{config.FLASK_PORT}")
     
+    # 启动cookie自动更新线程
+    start_cookie_update_thread()
+    
     app.run(
         host=config.FLASK_HOST,
-        port=config.FLASK_PORT,
+        port=8080,
         debug=config.FLASK_DEBUG
     ) 
