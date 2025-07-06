@@ -5,12 +5,14 @@ import sys
 import json
 import pandas as pd
 from datetime import datetime
+import traceback
 
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import Config
 from crawler.xhs_crawler import XHSCrawler
+from crawler.xhs_simple_crawler import XHSSimpleCrawler
 from ai_analyzer.deepseek_analyzer import DeepSeekAnalyzer
 
 app = Flask(__name__)
@@ -19,6 +21,9 @@ CORS(app)
 # 配置
 config = Config()
 app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
+
+# 确保必要目录存在
+config.ensure_directories()
 
 # API密钥文件路径
 API_KEY_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'api_key.json')
@@ -82,11 +87,65 @@ def get_crawler():
         crawler = XHSCrawler()
     return crawler
 
+def get_simple_crawler():
+    """获取简单爬虫实例"""
+    return XHSSimpleCrawler()
+
 def get_analyzer():
     global analyzer
     if analyzer is None:
         analyzer = DeepSeekAnalyzer()
     return analyzer
+
+def get_data_files():
+    """获取数据文件列表"""
+    try:
+        data_dir = config.DATA_DIR
+        if not os.path.exists(data_dir):
+            return []
+        
+        files = []
+        for file in os.listdir(data_dir):
+            if file.endswith('.csv'):
+                file_path = os.path.join(data_dir, file)
+                files.append({
+                    'name': file,
+                    'path': file_path,
+                    'size': os.path.getsize(file_path),
+                    'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
+                })
+        
+        # 按修改时间排序，最新的在前
+        files.sort(key=lambda x: x['modified'], reverse=True)
+        return files
+    except Exception as e:
+        print(f"获取数据文件列表失败: {e}")
+        return []
+
+def get_analysis_files():
+    """获取分析文件列表"""
+    try:
+        data_dir = config.DATA_DIR
+        if not os.path.exists(data_dir):
+            return []
+        
+        files = []
+        for file in os.listdir(data_dir):
+            if file.endswith('.json'):
+                file_path = os.path.join(data_dir, file)
+                files.append({
+                    'name': file,
+                    'path': file_path,
+                    'size': os.path.getsize(file_path),
+                    'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
+                })
+        
+        # 按修改时间排序，最新的在前
+        files.sort(key=lambda x: x['modified'], reverse=True)
+        return files
+    except Exception as e:
+        print(f"获取分析文件列表失败: {e}")
+        return []
 
 @app.route('/')
 def index():
@@ -98,10 +157,10 @@ def save_api_key_route():
     """保存API密钥"""
     try:
         data = request.get_json()
-        api_key = data.get('api_key', '').strip()
+        if not data:
+            return jsonify({'error': '请求数据为空'}), 400
         
-        if not api_key:
-            return jsonify({'error': 'API密钥不能为空'}), 400
+        api_key = data.get('api_key', '').strip()
         
         if save_api_key(api_key):
             return jsonify({
@@ -112,6 +171,7 @@ def save_api_key_route():
             return jsonify({'error': 'API密钥保存失败'}), 500
             
     except Exception as e:
+        print(f"保存API密钥时出错: {e}")
         return jsonify({'error': f'保存API密钥时出错: {str(e)}'}), 500
 
 @app.route('/api/load-api-key', methods=['GET'])
@@ -124,6 +184,7 @@ def load_api_key_route():
             'api_key': api_key
         })
     except Exception as e:
+        print(f"加载API密钥时出错: {e}")
         return jsonify({'error': f'加载API密钥时出错: {str(e)}'}), 500
 
 @app.route('/api/save-cookies', methods=['POST'])
@@ -131,10 +192,10 @@ def save_cookies_route():
     """保存cookies"""
     try:
         data = request.get_json()
-        cookies = data.get('cookies', '').strip()
+        if not data:
+            return jsonify({'error': '请求数据为空'}), 400
         
-        if not cookies:
-            return jsonify({'error': 'cookies不能为空'}), 400
+        cookies = data.get('cookies', '').strip()
         
         if save_cookies(cookies):
             return jsonify({
@@ -145,6 +206,7 @@ def save_cookies_route():
             return jsonify({'error': 'cookies保存失败'}), 500
             
     except Exception as e:
+        print(f"保存cookies时出错: {e}")
         return jsonify({'error': f'保存cookies时出错: {str(e)}'}), 500
 
 @app.route('/api/load-cookies', methods=['GET'])
@@ -157,6 +219,7 @@ def load_cookies_route():
             'cookies': cookies
         })
     except Exception as e:
+        print(f"加载cookies时出错: {e}")
         return jsonify({'error': f'加载cookies时出错: {str(e)}'}), 500
 
 @app.route('/api/crawl', methods=['POST'])
@@ -164,106 +227,137 @@ def crawl_data():
     """爬取数据API"""
     try:
         data = request.get_json()
-        topic = data.get('topic', '')
-        limit = int(data.get('limit', 20))
+        if not data:
+            return jsonify({'error': '请求数据为空'}), 400
         
+        topic = data.get('topic', '').strip()
+        limit = int(data.get('limit', 20))
+        cookies = data.get('cookies', '').strip()
+        
+        # 参数验证
         if not topic:
             return jsonify({'error': '请提供搜索主题'}), 400
         
-        # 加载保存的cookies
-        cookies = load_cookies()
+        if limit <= 0 or limit > 100:
+            return jsonify({'error': '获取数量必须在1-100之间'}), 400
         
+        print(f"开始爬取: 主题={topic}, 数量={limit}")
+        
+        # 获取爬虫实例
         crawler = get_crawler()
+        
+        # 执行爬取
         filepath = crawler.crawl_hot_notes(topic, limit, cookies)
         
         if filepath:
-            return jsonify({
-                'success': True,
-                'message': f'成功爬取 {limit} 条笔记',
-                'filepath': filepath
-            })
+            # 读取爬取的数据用于返回
+            try:
+                df = pd.read_csv(filepath, encoding='utf-8-sig')
+                data_list = df.to_dict('records')
+                
+                return jsonify({
+                    'success': True,
+                    'message': f'成功爬取 {len(data_list)} 条笔记',
+                    'data': data_list,
+                    'filepath': filepath,
+                    'filename': os.path.basename(filepath)
+                })
+            except Exception as e:
+                print(f"读取爬取数据失败: {e}")
+                return jsonify({
+                    'success': True,
+                    'message': '爬取完成，但读取数据失败',
+                    'filepath': filepath,
+                    'filename': os.path.basename(filepath)
+                })
         else:
-            return jsonify({'error': '爬取失败，请检查网络连接或重试'}), 500
+            return jsonify({'error': '爬取失败，未获取到数据'}), 500
             
+    except ValueError as e:
+        return jsonify({'error': f'参数错误: {str(e)}'}), 400
     except Exception as e:
-        return jsonify({'error': f'爬取过程中出错: {str(e)}'}), 500
+        print(f"爬取数据时出错: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': f'爬取数据时出错: {str(e)}'}), 500
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_data():
     """分析数据API"""
     try:
         data = request.get_json()
-        csv_file = data.get('csv_file', '')
-        api_key = data.get('api_key', '')  # 从前端获取API密钥
+        if not data:
+            return jsonify({'error': '请求数据为空'}), 400
         
-        if not csv_file or not os.path.exists(csv_file):
-            return jsonify({'error': 'CSV文件不存在'}), 400
+        filename = data.get('file', '').strip()
+        analysis_type = data.get('type', 'comprehensive')
         
+        if not filename:
+            return jsonify({'error': '请选择数据文件'}), 400
+        
+        # 构建文件路径
+        filepath = os.path.join(config.DATA_DIR, filename)
+        if not os.path.exists(filepath):
+            return jsonify({'error': '文件不存在'}), 404
+        
+        print(f"开始分析: 文件={filename}, 类型={analysis_type}")
+        
+        # 获取分析器实例
         analyzer = get_analyzer()
         
-        # 如果提供了API密钥，更新分析器
-        if api_key:
-            analyzer.update_api_key(api_key)
-        
         # 加载数据
-        df = analyzer.load_data(csv_file)
+        df = analyzer.load_data(filepath)
         if df.empty:
-            return jsonify({'error': '数据加载失败'}), 500
+            return jsonify({'error': '数据加载失败或数据为空'}), 500
         
-        # 进行趋势分析
-        trends = analyzer.analyze_trends(df)
-        
-        # 进行AI分析
-        ai_result = analyzer.analyze_with_ai(df)
-        
-        # 合并分析结果
-        analysis_result = {
-            'trends': trends,
-            'ai_analysis': ai_result,
-            'analysis_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'data_file': csv_file
-        }
+        # 根据分析类型执行不同的分析
+        if analysis_type == 'comprehensive':
+            # 综合分析
+            result = analyzer.generate_comprehensive_report(df)
+        elif analysis_type == 'trends':
+            # 趋势分析
+            result = {
+                'trends': analyzer.analyze_trends(df),
+                'analysis_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+        elif analysis_type == 'ai':
+            # AI深度分析
+            result = analyzer.analyze_with_ai(df)
+        else:
+            return jsonify({'error': '不支持的分析类型'}), 400
         
         # 保存分析结果
-        analysis_file = analyzer.save_analysis(analysis_result)
+        analysis_filename = f"analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        analysis_filepath = analyzer.save_analysis(result, analysis_filename)
         
         return jsonify({
             'success': True,
             'message': '分析完成',
-            'analysis': analysis_result,
-            'analysis_file': analysis_file
+            'data': result,
+            'analysis_file': analysis_filename
         })
         
     except Exception as e:
-        return jsonify({'error': f'分析过程中出错: {str(e)}'}), 500
+        print(f"分析数据时出错: {e}")
+        print(traceback.format_exc())
+        return jsonify({'error': f'分析数据时出错: {str(e)}'}), 500
 
 @app.route('/api/files')
 def list_files():
-    """列出数据文件"""
+    """获取文件列表"""
     try:
-        data_dir = config.DATA_DIR
-        if not os.path.exists(data_dir):
-            return jsonify({'files': []})
+        data_files = get_data_files()
+        analysis_files = get_analysis_files()
         
-        files = []
-        for filename in os.listdir(data_dir):
-            if filename.endswith('.csv'):
-                filepath = os.path.join(data_dir, filename)
-                stat = os.stat(filepath)
-                files.append({
-                    'name': filename,
-                    'path': filepath,
-                    'size': stat.st_size,
-                    'modified': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                })
-        
-        # 按修改时间排序
-        files.sort(key=lambda x: x['modified'], reverse=True)
-        
-        return jsonify({'files': files})
-        
+        return jsonify({
+            'success': True,
+            'data_files': [f['name'] for f in data_files],
+            'analysis_files': [f['name'] for f in analysis_files],
+            'data_files_detail': data_files,
+            'analysis_files_detail': analysis_files
+        })
     except Exception as e:
-        return jsonify({'error': f'获取文件列表失败: {str(e)}'}), 500
+        print(f"获取文件列表时出错: {e}")
+        return jsonify({'error': f'获取文件列表时出错: {str(e)}'}), 500
 
 @app.route('/api/analysis/<filename>')
 def get_analysis(filename):
@@ -271,15 +365,18 @@ def get_analysis(filename):
     try:
         filepath = os.path.join(config.DATA_DIR, filename)
         if not os.path.exists(filepath):
-            return jsonify({'error': '分析文件不存在'}), 404
+            return jsonify({'error': '文件不存在'}), 404
         
         with open(filepath, 'r', encoding='utf-8') as f:
             analysis_data = json.load(f)
         
-        return jsonify(analysis_data)
-        
+        return jsonify({
+            'success': True,
+            'data': analysis_data
+        })
     except Exception as e:
-        return jsonify({'error': f'读取分析文件失败: {str(e)}'}), 500
+        print(f"获取分析结果时出错: {e}")
+        return jsonify({'error': f'获取分析结果时出错: {str(e)}'}), 500
 
 @app.route('/api/download/<filename>')
 def download_file(filename):
@@ -289,10 +386,15 @@ def download_file(filename):
         if not os.path.exists(filepath):
             return jsonify({'error': '文件不存在'}), 404
         
-        return send_file(filepath, as_attachment=True)
-        
+        return send_file(
+            filepath,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/octet-stream'
+        )
     except Exception as e:
-        return jsonify({'error': f'下载文件失败: {str(e)}'}), 500
+        print(f"下载文件时出错: {e}")
+        return jsonify({'error': f'下载文件时出错: {str(e)}'}), 500
 
 @app.route('/api/health')
 def health_check():
@@ -305,25 +407,19 @@ def health_check():
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({'error': '页面不存在'}), 404
+    return jsonify({'error': '接口不存在'}), 404
 
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': '服务器内部错误'}), 500
 
 if __name__ == '__main__':
-    # 确保必要的目录存在
-    os.makedirs(config.DATA_DIR, exist_ok=True)
-    os.makedirs(config.TEMPLATES_DIR, exist_ok=True)
-    os.makedirs(config.STATIC_DIR, exist_ok=True)
-    
-    print(f"启动Web应用...")
-    print(f"数据目录: {config.DATA_DIR}")
-    print(f"模板目录: {config.TEMPLATES_DIR}")
-    print(f"静态文件目录: {config.STATIC_DIR}")
+    print("🚀 启动小红书热门博客分析系统...")
+    print(f"📁 数据目录: {config.DATA_DIR}")
+    print(f"🌐 访问地址: http://{config.FLASK_HOST}:{config.FLASK_PORT}")
     
     app.run(
-        host='0.0.0.0',
-        port=5001,
+        host=config.FLASK_HOST,
+        port=config.FLASK_PORT,
         debug=config.FLASK_DEBUG
     ) 

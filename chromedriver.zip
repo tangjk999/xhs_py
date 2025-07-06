@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+  <Code>NoSuchKey</Code>
+  <Message>The specified key does not exist.</Message>
+  <RequestId>68693D9FB677CE32389BD80E</RequestId>
+  <HostId>npmmirror.oss-cn-shanghai.aliyuncs.com</HostId>
+  <Key>binaries/chromedriver/138.0.7204.92/chromedriver_mac_arm64.zip</Key>
+  <EC>0026-00000001</EC>
+  <RecommendDoc>https://api.aliyun.com/troubleshoot?q=0026-00000001</RecommendDoc>
+</Error>

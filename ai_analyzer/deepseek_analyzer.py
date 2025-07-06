@@ -19,7 +19,7 @@ class DeepSeekAnalyzer:
             self.use_mock = True
         else:
             self.use_mock = False
-    
+            
     def update_api_key(self, api_key: str):
         """更新API密钥"""
         self.api_key = api_key
@@ -190,27 +190,57 @@ class DeepSeekAnalyzer:
     def _build_analysis_prompt(self, data_summary: Dict[str, Any], template: str = None) -> str:
         """构建分析提示"""
         base_prompt = f"""
-请分析以下小红书笔记数据，并提供深入的洞察和建议：
+你是一个专业的小红书内容分析师，请对以下小红书笔记数据进行深度分析，并提供有价值的洞察和建议。
 
-数据概览：
+## 数据概览
 - 总笔记数：{data_summary['total_notes']}
 - 数据字段：{', '.join(data_summary['columns'])}
 - 样本标题：{data_summary['sample_titles']}
 - 样本作者：{data_summary['sample_authors']}
 
-请从以下角度进行分析：
-1. 内容趋势分析
-2. 用户偏好分析
-3. 热门话题识别
-4. 内容质量评估
-5. 营销策略建议
-6. 未来趋势预测
+## 分析要求
+请从以下维度进行专业分析：
 
-请提供结构化的分析报告，包含具体的数据洞察和 actionable 的建议。
+### 1. 内容趋势分析
+- 热门话题和关键词识别
+- 内容类型分布
+- 标题特征分析
+- 内容风格总结
+
+### 2. 用户行为分析
+- 点赞数分布和规律
+- 热门作者特征
+- 用户偏好分析
+- 互动模式总结
+
+### 3. 市场洞察
+- 行业趋势判断
+- 用户需求分析
+- 内容机会识别
+- 竞争态势评估
+
+### 4. 策略建议
+- 内容创作建议
+- 运营策略推荐
+- 用户增长建议
+- 变现机会分析
+
+### 5. 风险提示
+- 潜在风险识别
+- 合规建议
+- 竞争风险分析
+
+请用中文回答，分析要具体、实用、有数据支撑。如果数据不足，请说明并给出基于经验的建议。
 """
         
         if template:
-            base_prompt += f"\n\n请按照以下模板格式输出：\n{template}"
+            # 如果有自定义模板，使用模板
+            try:
+                with open(template, 'r', encoding='utf-8') as f:
+                    template_content = f.read()
+                return template_content.format(**data_summary)
+            except Exception as e:
+                print(f"模板加载失败: {e}")
         
         return base_prompt
     
@@ -220,70 +250,96 @@ class DeepSeekAnalyzer:
             import requests
             
             headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
             }
             
             data = {
-                "model": "deepseek-chat",
-                "messages": [
-                    {"role": "user", "content": prompt}
+                'model': 'deepseek-chat',
+                'messages': [
+                    {
+                        'role': 'system',
+                        'content': '你是一个专业的小红书内容分析师，擅长数据分析和市场洞察。'
+                    },
+                    {
+                        'role': 'user',
+                        'content': prompt
+                    }
                 ],
-                "temperature": 0.7,
-                "max_tokens": 2000
+                'max_tokens': self.config.MAX_TOKENS,
+                'temperature': self.config.TEMPERATURE,
+                'stream': False
             }
             
             response = requests.post(
                 f"{self.api_base}/v1/chat/completions",
                 headers=headers,
                 json=data,
-                timeout=30
+                timeout=60
             )
             
             if response.status_code == 200:
                 result = response.json()
                 return result['choices'][0]['message']['content']
             else:
-                raise Exception(f"API调用失败: {response.status_code}")
+                print(f"API调用失败: {response.status_code} - {response.text}")
+                return f"API调用失败: {response.status_code}"
                 
         except Exception as e:
-            raise Exception(f"调用DeepSeek API时出错: {e}")
+            print(f"调用DeepSeek API时出错: {e}")
+            return f"API调用出错: {str(e)}"
     
     def _mock_ai_analysis(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """模拟AI分析（当API不可用时）"""
-        return {
-            "ai_analysis": f"""
-基于 {len(data)} 条小红书笔记的AI分析报告：
-
-📊 内容趋势分析：
-- 当前主题内容呈现多样化趋势
-- 用户更倾向于实用性和可操作性的内容
-- 视觉化内容（图片、视频）更受欢迎
-
-🎯 用户偏好分析：
-- 用户关注内容的质量和实用性
-- 互动性强的内容更容易获得关注
-- 个性化推荐对用户行为影响显著
-
-🔥 热门话题识别：
-- 生活技巧类内容持续热门
-- 美食、旅行、时尚是永恒话题
-- 新兴话题需要及时跟进
-
-💡 营销策略建议：
-- 注重内容质量和原创性
-- 增加与用户的互动
-- 利用热门话题提高曝光度
-- 建立个人品牌形象
-
-🔮 未来趋势预测：
-- 短视频内容将继续增长
-- 个性化推荐将更加精准
-- 社区互动功能将更加重要
-            """,
-            "data_summary": self._prepare_data_summary(data),
-            "analysis_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        """模拟AI分析（当API不可用时使用）"""
+        print("🎭 使用模拟AI分析...")
+        
+        analysis = {
+            "content_trends": {
+                "hot_topics": ["美食分享", "生活记录", "购物推荐", "旅行攻略", "美妆教程"],
+                "content_types": ["图文笔记", "视频内容", "合集推荐"],
+                "title_patterns": ["数字+关键词", "情感化表达", "实用性强"],
+                "style_summary": "内容风格偏向实用性和生活化"
+            },
+            "user_behavior": {
+                "engagement_patterns": "用户更倾向于点赞实用性强的内容",
+                "author_insights": "头部作者内容质量较高，互动性强",
+                "user_preferences": "美食、生活、美妆类内容受欢迎",
+                "interaction_summary": "评论和收藏是重要的互动指标"
+            },
+            "market_insights": {
+                "industry_trends": "内容创作向专业化、垂直化发展",
+                "user_needs": "用户需要更多实用、真实的内容",
+                "opportunities": "细分领域仍有较大发展空间",
+                "competition": "内容同质化严重，需要差异化竞争"
+            },
+            "strategic_recommendations": {
+                "content_strategy": [
+                    "注重内容质量和原创性",
+                    "建立个人品牌和特色",
+                    "保持更新频率和互动性",
+                    "关注用户反馈和需求"
+                ],
+                "growth_tips": [
+                    "选择合适的细分领域深耕",
+                    "与其他创作者合作互动",
+                    "利用热点话题增加曝光",
+                    "建立粉丝社群"
+                ],
+                "monetization": [
+                    "通过优质内容吸引品牌合作",
+                    "开发自有产品或服务",
+                    "利用平台变现功能",
+                    "建立多元化收入来源"
+                ]
+            },
+            "risk_warnings": {
+                "compliance_risks": "注意内容合规性，避免违规",
+                "competition_risks": "市场竞争激烈，需要持续创新",
+                "platform_risks": "平台政策变化可能影响运营"
+            }
         }
+        
+        return analysis
     
     def save_analysis(self, analysis: Dict[str, Any], filename: str = None) -> str:
         """保存分析结果"""
@@ -299,6 +355,211 @@ class DeepSeekAnalyzer:
         
         print(f"分析结果已保存到: {filepath}")
         return filepath
+
+    def generate_comprehensive_report(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """生成综合分析报告"""
+        print("📊 生成综合分析报告...")
+        
+        # 基础趋势分析
+        trends = self.analyze_trends(data)
+        
+        # AI深度分析
+        ai_result = self.analyze_with_ai(data)
+        
+        # 数据统计
+        stats = self._calculate_statistics(data)
+        
+        # 可视化数据
+        chart_data = self._prepare_chart_data(data)
+        
+        # 生成报告
+        report = {
+            "summary": {
+                "total_notes": len(data),
+                "analysis_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "data_source": "小红书爬虫",
+                "analysis_version": "1.0.0"
+            },
+            "trends": trends,
+            "ai_analysis": ai_result,
+            "statistics": stats,
+            "charts": chart_data,
+            "recommendations": self._generate_actionable_recommendations(data, trends, ai_result)
+        }
+        
+        return report
+
+    def _calculate_statistics(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """计算详细统计数据"""
+        stats = {
+            "basic_stats": {},
+            "engagement_stats": {},
+            "author_stats": {},
+            "content_stats": {}
+        }
+        
+        # 基础统计
+        stats["basic_stats"] = {
+            "total_notes": len(data),
+            "unique_authors": data['author'].nunique() if 'author' in data.columns else 0,
+            "date_range": self._get_date_range(data) if 'publish_time' in data.columns else "未知"
+        }
+        
+        # 互动统计
+        if 'likes' in data.columns:
+            try:
+                likes_data = data['likes'].astype(str).str.extract('(\d+)')[0].astype(float)
+                stats["engagement_stats"] = {
+                    "avg_likes": likes_data.mean(),
+                    "median_likes": likes_data.median(),
+                    "max_likes": likes_data.max(),
+                    "min_likes": likes_data.min(),
+                    "total_likes": likes_data.sum(),
+                    "likes_distribution": {
+                        "high": len(likes_data[likes_data > likes_data.quantile(0.8)]),
+                        "medium": len(likes_data[(likes_data > likes_data.quantile(0.2)) & (likes_data <= likes_data.quantile(0.8))]),
+                        "low": len(likes_data[likes_data <= likes_data.quantile(0.2)])
+                    }
+                }
+            except:
+                stats["engagement_stats"] = {"error": "无法解析点赞数据"}
+        
+        # 作者统计
+        if 'author' in data.columns:
+            author_counts = data['author'].value_counts()
+            stats["author_stats"] = {
+                "top_authors": author_counts.head(10).to_dict(),
+                "author_distribution": {
+                    "single_post": len(author_counts[author_counts == 1]),
+                    "multiple_posts": len(author_counts[author_counts > 1])
+                }
+            }
+        
+        # 内容统计
+        if 'title' in data.columns:
+            title_lengths = data['title'].str.len()
+            stats["content_stats"] = {
+                "avg_title_length": title_lengths.mean(),
+                "title_length_distribution": {
+                    "short": len(title_lengths[title_lengths <= 10]),
+                    "medium": len(title_lengths[(title_lengths > 10) & (title_lengths <= 30)]),
+                    "long": len(title_lengths[title_lengths > 30])
+                }
+            }
+        
+        return stats
+
+    def _get_date_range(self, data: pd.DataFrame) -> str:
+        """获取数据的时间范围"""
+        try:
+            # 尝试解析发布时间
+            dates = pd.to_datetime(data['publish_time'], errors='coerce')
+            valid_dates = dates.dropna()
+            if len(valid_dates) > 0:
+                start_date = valid_dates.min().strftime('%Y-%m-%d')
+                end_date = valid_dates.max().strftime('%Y-%m-%d')
+                return f"{start_date} 至 {end_date}"
+        except:
+            pass
+        return "时间范围未知"
+
+    def _prepare_chart_data(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """准备图表数据"""
+        chart_data = {}
+        
+        # 作者分布图
+        if 'author' in data.columns:
+            author_counts = data['author'].value_counts().head(10)
+            chart_data["author_distribution"] = {
+                "labels": author_counts.index.tolist(),
+                "data": author_counts.values.tolist()
+            }
+        
+        # 点赞数分布图
+        if 'likes' in data.columns:
+            try:
+                likes_data = data['likes'].astype(str).str.extract('(\d+)')[0].astype(float)
+                # 创建点赞数区间
+                bins = [0, 100, 500, 1000, 5000, float('inf')]
+                labels = ['0-100', '101-500', '501-1000', '1001-5000', '5000+']
+                likes_binned = pd.cut(likes_data, bins=bins, labels=labels, include_lowest=True)
+                likes_dist = likes_binned.value_counts()
+                chart_data["likes_distribution"] = {
+                    "labels": likes_dist.index.tolist(),
+                    "data": likes_dist.values.tolist()
+                }
+            except:
+                pass
+        
+        # 标题长度分布
+        if 'title' in data.columns:
+            title_lengths = data['title'].str.len()
+            bins = [0, 10, 20, 30, 50, float('inf')]
+            labels = ['0-10', '11-20', '21-30', '31-50', '50+']
+            length_binned = pd.cut(title_lengths, bins=bins, labels=labels, include_lowest=True)
+            length_dist = length_binned.value_counts()
+            chart_data["title_length_distribution"] = {
+                "labels": length_dist.index.tolist(),
+                "data": length_dist.values.tolist()
+            }
+        
+        return chart_data
+
+    def _generate_actionable_recommendations(self, data: pd.DataFrame, trends: Dict, ai_result: Dict) -> Dict[str, Any]:
+        """生成可执行的建议"""
+        recommendations = {
+            "content_strategy": [],
+            "growth_tips": [],
+            "monetization": [],
+            "risk_management": []
+        }
+        
+        # 基于数据的建议
+        if trends.get('engagement_analysis', {}).get('avg_likes', 0) > 1000:
+            recommendations["content_strategy"].append("内容质量较高，建议保持现有创作风格")
+        else:
+            recommendations["content_strategy"].append("建议提升内容质量和互动性")
+        
+        if trends.get('top_authors'):
+            recommendations["growth_tips"].append(f"关注头部作者（如{trends['top_authors'][0]['author']}）的创作策略")
+        
+        if ai_result.get('ai_analysis'):
+            # 从AI分析中提取建议
+            ai_text = ai_result['ai_analysis']
+            if isinstance(ai_text, str):
+                if "实用" in ai_text:
+                    recommendations["content_strategy"].append("注重内容的实用性")
+                if "原创" in ai_text:
+                    recommendations["content_strategy"].append("保持内容原创性")
+                if "互动" in ai_text:
+                    recommendations["growth_tips"].append("加强与用户的互动")
+        
+        # 通用建议
+        recommendations["content_strategy"].extend([
+            "定期分析热门话题和关键词",
+            "保持内容更新频率",
+            "建立个人品牌特色"
+        ])
+        
+        recommendations["growth_tips"].extend([
+            "与其他创作者合作互动",
+            "利用热点话题增加曝光",
+            "建立粉丝社群"
+        ])
+        
+        recommendations["monetization"].extend([
+            "通过优质内容吸引品牌合作",
+            "开发自有产品或服务",
+            "利用平台变现功能"
+        ])
+        
+        recommendations["risk_management"].extend([
+            "注意内容合规性",
+            "关注平台政策变化",
+            "建立多元化收入来源"
+        ])
+        
+        return recommendations
 
 if __name__ == "__main__":
     # 测试分析器

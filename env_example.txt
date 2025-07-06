@@ -1,10 +1,28 @@
+# 小红书热门博客分析系统环境变量配置示例
+# 复制此文件为 .env 并填入实际值
+
 # DeepSeek API配置
-DEEPSEEK_API_KEY=sk-ccb9b99e08ed4c0cb309a6222ae9a45c
+# 获取地址: https://platform.deepseek.com/
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
 DEEPSEEK_API_BASE=https://api.deepseek.com
 
-# Flask配置
-FLASK_SECRET_KEY=your-secret-key-here
+# Flask Web应用配置
+FLASK_SECRET_KEY=your-secret-key-here-change-this
 FLASK_DEBUG=True
+FLASK_HOST=0.0.0.0
+FLASK_PORT=5000
+
+# 日志配置
+LOG_LEVEL=INFO
+
+# 爬虫配置（可选，使用默认值即可）
+# CRAWLER_DELAY=2
+# MAX_RETRIES=3
+
+# 数据存储配置（可选，使用默认值即可）
+# DATA_DIR=data
+# TEMPLATES_DIR=templates
+# STATIC_DIR=static
 
 # 其他配置
 # 可以根据需要添加其他环境变量 
